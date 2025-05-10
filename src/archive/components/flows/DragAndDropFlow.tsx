@@ -8,12 +8,13 @@ import {
     useEdgesState,
     useNodesState,
     useReactFlow,
+    OnConnect,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
 
-import Sidebar from '../interaction/draganddrop/DragDropSidebar.tsx';
-import {DnDProvider, useDnD} from '../interaction/draganddrop/DragDrop.tsx';
+import Sidebar from '../../../features/sidebar/components/DragDropSidebar.tsx';
+import {DnDProvider, useDnD} from '../../../features/sidebar/context/DragDropContext.tsx';
 
 const initialNodes = [
     {
@@ -34,15 +35,17 @@ const DnDFlow = () => {
     const {screenToFlowPosition} = useReactFlow();
     const [type] = useDnD();
 
-    const onConnect = useCallback(
+    const onConnect: OnConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
-        [],
+        []
     );
 
-    const onDragOver = useCallback((event) => {
+    const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, []);
+
+
 
     const onDrop = useCallback(
         (event) => {

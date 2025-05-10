@@ -1,9 +1,13 @@
 import type {Node, NodeProps} from '@xyflow/react';
 import {ComponentType} from "react";
 
-export type BaseNodeType = 'number' | 'text' | 'script' | 'start' | 'end';
+export type BaseNodeType = 'number' | 'text' | 'loadScript' | 'inlineScript' | 'start' | 'end';
 
-export type NodeFieldType = 'text' | 'number' | 'select';
+export type NodeFieldType = 'text' | 'number' | 'select' | 'textarea';
+
+export interface NodeActions {
+    [actionName: string]: () => void;
+}
 
 export interface NodeField {
     key: string;
@@ -13,12 +17,20 @@ export interface NodeField {
     options?: string[];
 }
 
+export interface NodeTheme {
+    background: string;
+    text: string;
+    border?: string;
+}
+
 export interface BaseNodeData {
     nodeType: string;
     title: string;
     icon?: ComponentType<{ fontSize?: 'small' | 'medium' | 'large' }>;
     fields: NodeField[];
-    onConfigure?: () => void;
+    actions?: NodeActions;
+    theme?: NodeTheme;
+
     [key: string]: unknown;
 }
 

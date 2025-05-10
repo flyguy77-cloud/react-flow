@@ -15,20 +15,22 @@ import {
 import '@xyflow/react/dist/base.css';
 import {Box, Paper} from '@mui/material';
 
-import BaseNode from '../nodes/BaseNode';
-import {useDnD} from '../interaction/draganddrop/DragDrop';
-import DragDropSidebar from '../interaction/draganddrop/DragDropSidebar';
-import type {BaseNodeData} from '../../types/BaseNodeTypes';
-import CustomEdge from '../edges/CustomEdge.tsx';
-import {createNodeFromType} from "../../types/createNodeFromType.ts";
-import {nodeRegistry} from "../../types/NodeRegistry.ts";
-import StartNode from "../nodes/StartNode.tsx";
-import EndNode from "../nodes/StopNode.tsx";
+import BaseNode from '../../nodes/components/BaseNode.tsx';
+import {useDnD} from '../../sidebar/context/DragDropContext.tsx';
+import DragDropSidebar from '../../sidebar/components/DragDropSidebar.tsx';
+import type {BaseNodeData} from '../../nodes/types/BaseNodeTypes.ts';
+import CustomEdge from './CustomEdge.tsx';
+import {createNodeFromType} from "../../nodes/factory/createNodeFromType.ts";
+import {nodeRegistry} from "../../nodes/registry/NodeRegistry.ts";
+import StartNode from "../../nodes/components/StartNode.tsx";
+import EndNode from "../../nodes/components/StopNode.tsx";
 
 const nodeTypes: NodeTypes = {
     baseNode: BaseNode,
-    script: BaseNode,
-    report: BaseNode,
+    loadScript: BaseNode,
+    runScript: BaseNode,
+    inlineScript: BaseNode,
+    genereer: BaseNode,
     start: StartNode,
     stop: EndNode
 };
@@ -109,7 +111,7 @@ const Flow = () => {
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
                     onConnect={onConnect}
-                    fitView={false} // Inzoomen bij drop uitzetten
+                    fitView={false} // turn off zoom in after dropping first node
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}
                     defaultEdgeOptions={defaultEdgeOptions}

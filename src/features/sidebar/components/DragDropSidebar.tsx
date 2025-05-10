@@ -1,25 +1,27 @@
 import React from 'react';
-import { useDnD } from './DragDrop';
-import { Typography, List, ListItem, Paper } from '@mui/material';
+import {useDnD} from '../context/DragDropContext.tsx';
+import {List, ListItem, Paper, Typography} from '@mui/material';
 
 const nodeTypes = [
-    { type: 'start', label: 'Start Node' },
-    { type: 'stop', label: 'Stop Node' },
-    { type: 'script', label: 'Script Node' },
-    { type: 'report', label: 'Rapport Node' }
+    {type: 'start', label: 'Start'},
+    {type: 'stop', label: 'Stop'},
+    {type: 'loadScript', label: 'Load Script'},
+    {type: 'inlineScript', label: 'Inline Script'},
+    {type: 'runScript', label: 'Run Script'},
+    {type: 'genereer', label: 'Genereer'}
 ];
 
 const DragDropSidebar: React.FC = () => {
     const [, setType] = useDnD();
 
-    const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
+    const onDragStart = (event: React.DragEvent<HTMLLIElement>, nodeType: string) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
         event.dataTransfer.effectAllowed = 'move';
         if (setType) setType(nodeType);
     };
 
     return (
-        <Paper sx={{ p: 2, width: 180, height: '100%', overflowY: 'auto' }} elevation={2}>
+        <Paper sx={{p: 2, width: 180, height: '100%', overflowY: 'auto'}} elevation={2}>
             <Typography variant="subtitle1" gutterBottom>
                 Sleepbare nodes
             </Typography>

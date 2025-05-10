@@ -1,6 +1,6 @@
-import { Node } from '@xyflow/react';
-import type { BaseNodeData } from './BaseNodeTypes.ts';
-import { nodeRegistry } from './NodeRegistry.ts';
+import {Node} from '@xyflow/react';
+import type {BaseNodeData} from '../types/BaseNodeTypes.ts';
+import {nodeRegistry} from '../registry/NodeRegistry.ts';
 
 let counter = 100;
 export const getNodeId = () => `node_${counter++}`;
@@ -16,7 +16,10 @@ export function createNodeFromType(type: string, position: { x: number, y: numbe
             data: {
                 nodeType: 'unknown',
                 title: 'Unknown Node',
-                fields: []
+                fields: [],
+                actions: {
+                    configure: () => alert('Unknown node type')
+                }
             }
         };
     }
@@ -26,8 +29,8 @@ export function createNodeFromType(type: string, position: { x: number, y: numbe
         type: type,
         position,
         data: {
-            ...registryData,
-            onConfigure: () => alert(`Configure ${registryData.type}`),
+            ...registryData
+            // No extra `configure`, everything is present in `actions` via nodeRegistry
         } as BaseNodeData
     };
 }
