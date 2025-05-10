@@ -26,10 +26,11 @@ export function createNodeFromType(type: string, position: { x: number, y: numbe
 
     return {
         id: getNodeId(),
-        type: type,
+        type: 'baseNode',
         position,
         data: {
-            ...registryData
+            ...registryData,
+            nodeType: type,
             // No extra `configure`, everything is present in `actions` via nodeRegistry
         } as BaseNodeData
     };
