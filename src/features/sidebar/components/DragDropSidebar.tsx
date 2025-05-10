@@ -1,6 +1,7 @@
 import React from 'react';
 import {useDnD} from '../context/DragDropContext.tsx';
-import {List, ListItem, Paper, Typography} from '@mui/material';
+import {Divider, List, ListItem, Paper, Typography} from '@mui/material';
+import {nodeCategories} from "../../../shared/config/NodeCategories.ts";
 
 const nodeTypes = [
     {type: 'start', label: 'Start'},
@@ -21,31 +22,36 @@ const DragDropSidebar: React.FC = () => {
     };
 
     return (
-        <Paper sx={{p: 2, width: 180, height: '100%', overflowY: 'auto'}} elevation={2}>
-            <Typography variant="subtitle1" gutterBottom>
-                Sleepbare nodes
-            </Typography>
-            <List>
-                {nodeTypes.map((node) => (
-                    <ListItem
-                        key={node.type + node.label}
-                        draggable
-                        onDragStart={(e) => onDragStart(e, node.type)}
-                        sx={{
-                            p: 1,
-                            my: 1,
-                            backgroundColor: '#f5f5f5',
-                            borderRadius: 1,
-                            cursor: 'grab',
-                            '&:hover': {
-                                backgroundColor: '#e0e0e0'
-                            }
-                        }}
-                    >
-                        {node.label}
-                    </ListItem>
-                ))}
-            </List>
+        <Paper sx={{p: 2, width: 240, height: '100%', overflowY: 'auto'}} elevation={2}>
+            {nodeCategories.map((category, catIdx) => (
+                <div key={category.label}>
+                    <Typography variant="subtitle1" sx={{mb: 1}}>
+                        {category.label}
+                    </Typography>
+                    <List disablePadding>
+                        {nodeTypes.map((node) => (
+                            <ListItem
+                                key={node.type + node.label}
+                                draggable
+                                onDragStart={(e) => onDragStart(e, node.type)}
+                                sx={{
+                                    p: 1,
+                                    my: 1,
+                                    backgroundColor: '#f5f5f5',
+                                    borderRadius: 1,
+                                    cursor: 'grab',
+                                    '&:hover': {
+                                        backgroundColor: '#e0e0e0'
+                                    }
+                                }}
+                            >
+                                {node.label}
+                            </ListItem>
+                        ))}
+                    </List>
+                    {catIdx < nodeCategories.length - 1 && <Divider sx={{my: 2}}/>}
+                </div>
+            ))}
         </Paper>
     );
 };
