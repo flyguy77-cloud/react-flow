@@ -28,7 +28,11 @@ import EndNode from "../../nodes/components/StopNode.tsx";
 const nodeTypes: NodeTypes = {
     baseNode: BaseNode,
     start: StartNode,
-    stop: EndNode
+    stop: EndNode,
+    loadScript: BaseNode,
+    runScript: BaseNode,
+    inlineScript: BaseNode,
+    genereer: BaseNode
 };
 
 const edgeTypes = {

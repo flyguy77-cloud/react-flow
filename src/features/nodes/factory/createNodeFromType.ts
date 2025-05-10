@@ -26,7 +26,7 @@ export function createNodeFromType(type: string, position: { x: number, y: numbe
 
     return {
         id: getNodeId(),
-        type: 'baseNode',
+        type: type,
         position,
         data: {
             ...registryData,
