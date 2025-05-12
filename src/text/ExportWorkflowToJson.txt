@@ -1,0 +1,22 @@
+export const exportWorkflow = (nodes: any[], edges: any[]) => {
+  const blob = new Blob(
+    [JSON.stringify({ nodes, edges }, null, 2)],
+    { type: 'application/json' }
+  );
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'workflow.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+
+
+  const { getNodes, getEdges } = useReactFlow();
+
+  const handleExport = () => {
+    const nodes = getNodes();
+    const edges = getEdges();
+    exportWorkflow(nodes, edges);
+  };

@@ -1,0 +1,20 @@
+export const importWorkflow = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  setNodes: (nodes: any[]) => void,
+  setEdges: (edges: any[]) => void
+) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const json = JSON.parse(e.target?.result as string);
+      setNodes(json.nodes || []);
+      setEdges(json.edges || []);
+    } catch (err) {
+      console.error('Invalid JSON:', err);
+    }
+  };
+  reader.readAsText(file);
+};
