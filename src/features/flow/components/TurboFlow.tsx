@@ -1,6 +1,6 @@
 import React, {useCallback, useRef} from 'react';
 import {
-    addEdge,
+    addEdge, applyEdgeChanges, applyNodeChanges,
     Controls,
     Edge,
     Node,
@@ -68,15 +68,51 @@ const defaultEdgeOptions = {
 
 const Flow = () => {
     const reactFlowWrapper = useRef(null);
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [nodes, setNodes] = useNodesState(initialNodes);
+    const [edges, setEdges] = useEdgesState(initialEdges);
     const {screenToFlowPosition} = useReactFlow();
     const [type] = useDnD();
 
     const onConnect: OnConnect = useCallback(
-        (params) => setEdges((els) => addEdge(params, els)),
-        []
+        (params) => {
+            const updatedEdges = addEdge(params, edges);
+            setEdges(updatedEdges);
+            updateStartNodeStatus(nodes, updatedEdges); // <== add this to trigger a change on the canvas
+        },
+        [edges, nodes]
     );
+
+    const updateStartNodeStatus = (nodes: Node[], edges: Edge[]) => {
+        const updatedNodes = nodes.map((node) => {
+            if (node.type !== 'start') return node;
+
+            const isConnected = edges.some((edge) => {
+                return edge.source === node.id && nodes.find(n => n.id === edge.target && n.type === 'stop');
+            });
+
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    isConnectedToEnd: isConnected,
+                }
+            };
+        });
+
+        setNodes(updatedNodes);
+    };
+
+    const handleEdgesChange = useCallback((changes: any) => {
+        const nextEdges = applyEdgeChanges(changes, edges);
+        setEdges(nextEdges);
+        updateStartNodeStatus(nodes, nextEdges);
+    }, [edges, nodes]);
+
+    const handleNodesChange = useCallback((changes: any) => {
+        const nextNodes = applyNodeChanges(changes, nodes);
+        setNodes(nextNodes);
+        updateStartNodeStatus(nextNodes, edges); // gebruik up-to-date nodes
+    }, [nodes, edges]);
 
     const onDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
@@ -105,8 +141,8 @@ const Flow = () => {
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
+                    onNodesChange={handleNodesChange}
+                    onEdgesChange={handleEdgesChange}
                     onConnect={onConnect}
                     fitView={false} // turn off zoom in after dropping first node
                     nodeTypes={nodeTypes}

@@ -1,0 +1,48 @@
+            <Box>
+                <Grid
+                    container
+                    spacing={2}
+                    justifyContent="center"
+                    sx={{p: 2}}
+                >
+                    {workflows.map((workflow) => (
+                        <Grid
+                            item
+                            key={workflow.id}
+                            xs={12}
+                            sm={6}
+                            md={6}
+                            lg={4}
+                            xl={3}
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Card
+                                sx={{
+                                    width: '700px',
+                                    maxWidth: 700,
+                                    flexGrow: 1,
+                                }}
+                            >
+                                <CardContent>
+                                    <Typography variant="h6" gutterBottom>
+                                        {workflow.title}
+                                    </Typography>
+                                    <Typography color="text.secondary" gutterBottom>
+                                        Status: {workflow.status}
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        color={workflow.status === 'running' ? 'error' : 'primary'}
+                                    >
+                                        {workflow.status === 'running' ? 'Stop' : 'Start'}
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        </>
