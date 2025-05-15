@@ -3,7 +3,10 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import {BaseNodeData} from "../types/BaseNodeTypes.ts";
 import CodeIcon from '@mui/icons-material/Code';
-import TerminalIcon from '@mui/icons-material/TerminalOutlined'
+import TerminalIcon from '@mui/icons-material/TerminalOutlined';
+import DoneAll from '@mui/icons-material/DoneAll';
+import Done from '@mui/icons-material/Done';
+import HelpOutline from '@mui/icons-material/HelpOutline';
 import {handleScriptLoading} from "../handlers/useScriptNodeHandler.tsx";
 import FunctionIcon from "../../../shared/icons/FunctionIcon.tsx";
 
@@ -21,12 +24,6 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
                 value: 'generate-report.sh',
                 options: ['generate-report.sh', 'cleanup-data.sh']
             },
-            {
-                key: 'timeout',
-                label: 'Timeout',
-                type: 'number',
-                value: 60
-            }
         ],
         theme: {
             background: '#E3F2FD',
@@ -42,6 +39,7 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         nodeType: 'runScript',
         title: 'Run Script',
         icon: TerminalIcon,
+        status: "succes",
         fields: [
             {
                 key: 'runScript',
@@ -51,12 +49,28 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
                 options: ['generate-report.sh', 'cleanup-data.sh']
             },
             {
+                key: 'onderzoekId',
+                label: 'Onderzoek ID',
+                type: 'text',
+                value: ''
+            },
+            {
+                key: 'periode',
+                label: 'Periode',
+                type: 'text',
+                value: ''
+            },
+            {
                 key: 'timeout',
                 label: 'Timeout',
                 type: 'number',
                 value: 60
             }
         ],
+        actions: {
+            retry: () => handleScriptLoading("retry"),
+            logs: () => console.log("logs openen")
+        },
         theme: {
             background: '#F3E5F5',
             text: '#6A1B9A'
@@ -117,4 +131,37 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
             text: '#B71C1C'
         }, // rood
     },
+    conditionNode: {
+        nodeType: 'conditionNode',
+        title: 'If/Else',
+        icon: HelpOutline,
+        fields: [
+            {
+                key: 'expression',
+                label: 'Expressie',
+                type: 'text',
+                value: 'onderzoekId !== "" && periode === "Q2"'
+            }
+        ],
+        theme: {background: '#E3F2FD', text: '#0D47A1'}, // blauw
+    },
+    orJoin: {
+        nodeType: 'orJoin',
+        title: 'OR',
+        icon: Done,
+        fields: [], // Geen config nodig, het is puur logica
+        theme: {
+            background: '#E3F2FD', text: '#1565C0'
+        }
+    },
+    andJoin: {
+        nodeType: 'andJoin',
+        title: 'AND',
+        icon: DoneAll,
+        fields: [],
+        theme: {
+            background: '#E8F5E9', text: '#2E7D32'
+        },
+        status: 'waiting' // dynamisch bijwerken
+    }
 }

@@ -1,8 +1,9 @@
 import {Box} from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import {Handle, NodeProps, Position} from '@xyflow/react';
+import {Handle, Position} from '@xyflow/react';
+import {AppNodeProps} from "../types/BaseNodeTypes.ts";
 
-const StartNode = ({data}: NodeProps) => {
+const StartNode = ({data}: AppNodeProps) => {
     const isConnectedToEnd = data?.isConnectedToEnd;
 
     return (

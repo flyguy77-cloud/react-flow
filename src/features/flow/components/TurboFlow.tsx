@@ -1,10 +1,12 @@
 import React, {useCallback, useRef} from 'react';
 import {
-    addEdge, applyEdgeChanges, applyNodeChanges,
+    addEdge,
+    applyEdgeChanges,
+    applyNodeChanges,
     Controls,
     Edge,
     Node,
-    NodeTypes,
+    // NodeTypes,
     OnConnect,
     ReactFlow,
     useEdgesState,
@@ -15,25 +17,13 @@ import {
 import '@xyflow/react/dist/base.css';
 import {Box, Paper} from '@mui/material';
 
-import BaseNode from '../../nodes/components/BaseNode.tsx';
+import {nodeTypes} from '../../../shared/types/nodeTypes.ts'
 import {useDnD} from '../../sidebar/context/DragDropContext.tsx';
 import DragDropSidebar from '../../sidebar/components/DragDropSidebar.tsx';
 import type {BaseNodeData} from '../../nodes/types/BaseNodeTypes.ts';
 import CustomEdge from './CustomEdge.tsx';
 import {createNodeFromType} from "../../nodes/factory/createNodeFromType.ts";
 import {nodeRegistry} from "../../nodes/registry/NodeRegistry.ts";
-import StartNode from "../../nodes/components/StartNode.tsx";
-import EndNode from "../../nodes/components/StopNode.tsx";
-
-const nodeTypes: NodeTypes = {
-    baseNode: BaseNode,
-    start: StartNode,
-    stop: EndNode,
-    loadScript: BaseNode,
-    runScript: BaseNode,
-    inlineScript: BaseNode,
-    genereer: BaseNode
-};
 
 const edgeTypes = {
     custom: CustomEdge
@@ -82,7 +72,7 @@ const Flow = () => {
         [edges, nodes]
     );
 
-    const updateStartNodeStatus = (nodes: Node[], edges: Edge[]) => {
+    const updateStartNodeStatus = (nodes: Node<BaseNodeData>[], edges: Edge[]) => {
         const updatedNodes = nodes.map((node) => {
             if (node.type !== 'start') return node;
 

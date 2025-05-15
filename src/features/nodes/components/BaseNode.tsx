@@ -1,9 +1,10 @@
-import {Box, Divider, IconButton, Menu, MenuItem, Stack, Tooltip, Typography,} from '@mui/material';
+import {Box, Divider, IconButton, Menu, MenuItem, Select, Stack, TextField, Tooltip, Typography,} from '@mui/material';
 import {Handle, type NodeProps, Position, useReactFlow,} from '@xyflow/react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RetryIcon from '@mui/icons-material/Replay';
 import React, {useState} from 'react';
-import type {AppNode} from '../types/BaseNodeTypes';
+import type {AppNode, BaseNodeData} from '../types/BaseNodeTypes';
 
 export default function BaseNode({id, data}: NodeProps<AppNode>) {
     const {setNodes} = useReactFlow(); // fetch Hook
@@ -61,6 +62,15 @@ export default function BaseNode({id, data}: NodeProps<AppNode>) {
                     </Tooltip>
                 </Stack>
 
+                {data.status === 'failed' && (
+                    <Stack direction="row" spacing={0.5}>
+                        <IconButton size="small" onClick={() => data.actions?.retry?.()}>
+                            <RetryIcon fontSize="small"/>
+                        </IconButton>
+                    </Stack>
+                )}
+
+
                 <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                     {Object.entries(data.actions ?? {}).map(([key, action]) => (
                         <MenuItem key={key} onClick={() => {
@@ -75,17 +85,62 @@ export default function BaseNode({id, data}: NodeProps<AppNode>) {
 
             <Divider sx={{mb: 1}}/>
 
-            <Stack spacing={0.5}>
-                {data.fields.map((field, i) => (
-                    <Box key={i} display="flex" justifyContent="space-between">
-                        <Typography variant="body2" color="text.secondary">
-                            {field.label}:
-                        </Typography>
-                        <Typography variant="body2" fontWeight="medium">
-                            {field.value}
-                        </Typography>
-                    </Box>
-                ))}
+            <Stack spacing={1}>
+                {data.fields.map((field) => {
+                    const handleChange = (e: any) => {
+                        const newValue = e.target.value;
+
+                        // update node field value
+                        setNodes((prev) =>
+                            prev.map((node) => {
+                                if (node.id !== id) return node;
+
+                                const newFields = (node.data as BaseNodeData).fields.map((f) =>
+                                    f.key === field.key ? {...f, value: newValue} : f
+                                );
+
+                                return {
+                                    ...node,
+                                    data: {
+                                        ...node.data,
+                                        fields: newFields
+                                    }
+                                };
+                            })
+                        );
+                    };
+
+                    if (field.type === 'select') {
+                        return (
+                            <Select
+                                key={field.key}
+                                label={field.label}
+                                size="small"
+                                fullWidth
+                                value={field.value}
+                                onChange={handleChange}
+                            >
+                                {field.options?.map((opt) => (
+                                    <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                                ))}
+                            </Select>
+                        );
+                    }
+
+                    return (
+                        <TextField
+                            key={field.key}
+                            label={field.label}
+                            value={field.value}
+                            size="small"
+                            multiline
+                            variant="filled"
+                            fullWidth
+                            type={field.type === 'number' ? 'number' : 'text'}
+                            onChange={handleChange}
+                        />
+                    );
+                })}
             </Stack>
 
             <Handle type="target" position={Position.Left} style={{top: '50%'}}/>

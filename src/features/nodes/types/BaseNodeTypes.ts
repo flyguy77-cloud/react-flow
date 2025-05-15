@@ -1,7 +1,7 @@
 import type {Node, NodeProps} from '@xyflow/react';
-import {ComponentType} from "react";
+import type {ComponentType} from "react";
 
-export type BaseNodeType = 'number' | 'text' | 'loadScript' | 'inlineScript' | 'start' | 'end';
+export type BaseNodeType = 'number' | 'text' | 'loadScript' | 'inlineScript' | 'start' | 'end' | 'and';
 
 export type NodeFieldType = 'text' | 'number' | 'select' | 'textarea';
 
@@ -27,6 +27,7 @@ export interface BaseNodeData {
     nodeType: string;
     title: string;
     icon?: ComponentType<{ fontSize?: 'small' | 'medium' | 'large' }>;
+    status: string;
     fields: NodeField[];
     actions?: NodeActions;
     theme?: NodeTheme;

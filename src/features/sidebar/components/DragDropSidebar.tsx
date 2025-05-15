@@ -9,7 +9,12 @@ const nodeTypes = [
     {type: 'loadScript', label: 'Load Script'},
     {type: 'inlineScript', label: 'Inline Script'},
     {type: 'runScript', label: 'Run Script'},
-    {type: 'genereer', label: 'Genereer'}
+    {type: 'genereer', label: 'Genereer'},
+    {type: 'conditionNode', label: 'IF/ELSE'},
+    {type: 'orJoin', label: 'OR'},
+    {type: 'andJoin', label: 'AND'}
+
+
 ];
 
 const DragDropSidebar: React.FC = () => {
