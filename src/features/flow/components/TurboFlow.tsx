@@ -3,10 +3,11 @@ import {
     addEdge,
     applyEdgeChanges,
     applyNodeChanges,
+    Background,
+    BackgroundVariant,
     Controls,
     Edge,
     Node,
-    // NodeTypes,
     OnConnect,
     ReactFlow,
     useEdgesState,
@@ -126,7 +127,7 @@ const Flow = () => {
     }, []);
 
     return (
-        <Box sx={{height: '75vh', width: '100%', position: 'relative'}} ref={reactFlowWrapper}>
+        <Box sx={{height: '90vh', width: '140vh', position: 'relative'}} ref={reactFlowWrapper}>
             <Paper elevation={1} sx={{height: '100%'}}>
                 <ReactFlow
                     nodes={nodes}
@@ -134,7 +135,7 @@ const Flow = () => {
                     onNodesChange={handleNodesChange}
                     onEdgesChange={handleEdgesChange}
                     onConnect={onConnect}
-                    fitView={false} // turn off zoom in after dropping first node
+                    fitView={false}
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}
                     defaultEdgeOptions={defaultEdgeOptions}
@@ -142,6 +143,7 @@ const Flow = () => {
                     onDragOver={onDragOver}
                     style={{backgroundColor: '#fff'}}
                 >
+                    <Background variant={BackgroundVariant.Dots} size={1} gap={10}/>
                     <Controls showInteractive={false}/>
                     <svg>
                         <defs>

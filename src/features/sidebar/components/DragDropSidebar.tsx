@@ -12,9 +12,9 @@ const nodeTypes = [
     {type: 'genereer', label: 'Genereer'},
     {type: 'conditionNode', label: 'IF/ELSE'},
     {type: 'orJoin', label: 'OR'},
-    {type: 'andJoin', label: 'AND'}
-
-
+    {type: 'andJoin', label: 'AND'},
+    {type: 'schedule', label: 'Schedule'},
+    {type: 'save', label: 'Save'}
 ];
 
 const DragDropSidebar: React.FC = () => {

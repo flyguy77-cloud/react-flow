@@ -1,6 +1,6 @@
-import { Box } from '@mui/material';
+import {Box} from '@mui/material';
 import StopIcon from '@mui/icons-material/Stop';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import {Handle, NodeProps, Position} from '@xyflow/react';
 
 const EndNode = (_props: NodeProps) => {
     return (
@@ -20,7 +20,7 @@ const EndNode = (_props: NodeProps) => {
                 textAlign: 'center',
             }}
         >
-            <StopIcon sx={{ mr: 1 }} />
+            <StopIcon sx={{mr: 1}}/>
             Stop
             <Handle
                 type="target"

@@ -1,10 +1,11 @@
 import {Box} from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import {Handle, Position} from '@xyflow/react';
-import {AppNodeProps} from "../types/BaseNodeTypes.ts";
+// import {AppNodeProps} from "../types/BaseNodeTypes.ts";
 
-const StartNode = ({data}: AppNodeProps) => {
-    const isConnectedToEnd = data?.isConnectedToEnd;
+// const StartNode = ({data}: AppNodeProps) => {
+const StartNode = () => {
+    // const isConnectedToEnd = data?.isConnectedToEnd;
 
     return (
         <Box
@@ -14,7 +15,8 @@ const StartNode = ({data}: AppNodeProps) => {
                 borderRadius: 2,
                 border: '2px solid #4caf50',
                 backgroundColor: '#fff',
-                color: isConnectedToEnd ? '#4caf50' : '#DADBDD',
+                // color: isConnectedToEnd ? '#4caf50' : '#DADBDD',
+                color: '#4caf50',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -29,7 +31,8 @@ const StartNode = ({data}: AppNodeProps) => {
                 type="source"
                 position={Position.Right}
                 style={{
-                    background: isConnectedToEnd ? '#4caf50' : '#9e9e9e',
+                    // background: isConnectedToEnd ? '#4caf50' : '#9e9e9e',
+                    background: '#4caf50',
                     width: 10,
                     height: 10,
                     right: -6,

@@ -3,7 +3,7 @@ import type {ComponentType} from "react";
 
 export type BaseNodeType = 'number' | 'text' | 'loadScript' | 'inlineScript' | 'start' | 'end' | 'and';
 
-export type NodeFieldType = 'text' | 'number' | 'select' | 'textarea';
+export type NodeFieldType = 'text' | 'number' | 'select' | 'textarea' | 'date';
 
 export interface NodeActions {
     [actionName: string]: () => void;
@@ -13,7 +13,11 @@ export interface NodeField {
     key: string;
     label: string;
     value: string | number;
-    type: NodeFieldType;
+    type: NodeFieldType | String;
+    visibleIf: {
+        frequency: string;
+        notFrequency: string;
+    },
     options?: string[];
 }
 

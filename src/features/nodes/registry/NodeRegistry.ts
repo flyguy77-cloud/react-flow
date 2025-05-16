@@ -4,9 +4,11 @@ import StopIcon from '@mui/icons-material/Stop';
 import {BaseNodeData} from "../types/BaseNodeTypes.ts";
 import CodeIcon from '@mui/icons-material/Code';
 import TerminalIcon from '@mui/icons-material/TerminalOutlined';
-import DoneAll from '@mui/icons-material/DoneAll';
-import Done from '@mui/icons-material/Done';
-import HelpOutline from '@mui/icons-material/HelpOutline';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
+import DoneIcon from '@mui/icons-material/Done';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import SaveIcon from '@mui/icons-material/Save';
 import {handleScriptLoading} from "../handlers/useScriptNodeHandler.tsx";
 import FunctionIcon from "../../../shared/icons/FunctionIcon.tsx";
 
@@ -39,30 +41,24 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         nodeType: 'runScript',
         title: 'Run Script',
         icon: TerminalIcon,
-        status: "succes",
+        status: "failed",
         fields: [
-            {
-                key: 'runScript',
-                label: 'Script',
-                type: 'select',
-                value: 'generate-report.sh',
-                options: ['generate-report.sh', 'cleanup-data.sh']
-            },
             {
                 key: 'onderzoekId',
                 label: 'Onderzoek ID',
                 type: 'text',
-                value: ''
+                value: '1234321'
             },
             {
                 key: 'periode',
                 label: 'Periode',
-                type: 'text',
-                value: ''
+                type: 'select',
+                value: '1 maand',
+                options: ['1 maand', '3 maanden', '6 maanden']
             },
             {
                 key: 'timeout',
-                label: 'Timeout',
+                label: 'Timeout (sec.)',
                 type: 'number',
                 value: 60
             }
@@ -74,7 +70,7 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         theme: {
             background: '#F3E5F5',
             text: '#6A1B9A'
-        }, // paars
+        },
     },
     genereer: {
         nodeType: 'genereer',
@@ -83,9 +79,10 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         fields: [
             {
                 key: 'template',
-                label: 'Template',
-                type: 'text',
-                value: 'default-template'
+                label: 'Format',
+                type: 'select',
+                value: 'Pdf',
+                options: ['Pdf', 'MS Word']
             }
         ],
         theme: {
@@ -109,8 +106,44 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         theme: {
             background: '#FBE9E7',
             text: '#4E342E'
-        }, // bruinachtig
+        },
     },
+
+    save: {
+        nodeType: 'save',
+        title: 'Save Report',
+        icon: SaveIcon,
+        fields: [
+            {
+                key: 'destination',
+                label: 'Opslaan naar',
+                type: 'select',
+                value: 'Locatie',
+                options: ['Lokaal', 'DMS']
+            },
+            {
+                key: 'folderPath',
+                label: 'Maplocatie',
+                type: 'text',
+                value: '/onderzoeken/rapporten/'
+            },
+            {
+                key: 'filename',
+                label: 'Bestandsnaam',
+                type: 'text',
+                value: 'rapport-${onderzoekId}.pdf'
+            }
+        ],
+        theme: {
+            background: '#E8F5E9',
+            text: '#2E7D32'
+        },
+        actions: {
+            retry: () => console.log('Opnieuw proberen opslaan'),
+            logs: () => console.log('Toon opslaglog')
+        }
+    },
+
     start: {
         nodeType: 'start',
         title: 'Start',
@@ -133,22 +166,27 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
     },
     conditionNode: {
         nodeType: 'conditionNode',
-        title: 'If/Else',
-        icon: HelpOutline,
+        title: 'IF/ELSE',
+        label: 'Condition',
+        icon: HelpOutlineIcon,
         fields: [
             {
                 key: 'expression',
-                label: 'Expressie',
+                label: 'Voorwaarde',
                 type: 'text',
-                value: 'onderzoekId !== "" && periode === "Q2"'
+                value: 'onderzoekId !== ""'
             }
         ],
-        theme: {background: '#E3F2FD', text: '#0D47A1'}, // blauw
+        theme: {
+            background: '#FFFDE7',
+            text: '#9E9D24'
+        },
+        status: 'idle'
     },
     orJoin: {
         nodeType: 'orJoin',
         title: 'OR',
-        icon: Done,
+        icon: DoneIcon,
         fields: [], // Geen config nodig, het is puur logica
         theme: {
             background: '#E3F2FD', text: '#1565C0'
@@ -157,11 +195,45 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
     andJoin: {
         nodeType: 'andJoin',
         title: 'AND',
-        icon: DoneAll,
+        icon: DoneAllIcon,
         fields: [],
         theme: {
             background: '#E8F5E9', text: '#2E7D32'
         },
         status: 'waiting' // dynamisch bijwerken
+    },
+    schedule: {
+        nodeType: 'schedule',
+        title: 'Schedule',
+        label: 'Schedule',
+        icon: ScheduleIcon,
+        category: 'Triggers',
+        fields: [
+            {
+                key: 'frequency',
+                label: 'Frequentie',
+                type: 'select',
+                value: 'daily',
+                options: ['once', 'daily', 'weekly', 'monthly', 'advanced']
+            },
+            {
+                key: 'datetime',
+                label: 'Startmoment',
+                type: 'datetime',
+                value: '2025-05-17T08:00',
+                visibleIf: {notFrequency: 'advanced'}
+            },
+            {
+                key: 'cron',
+                label: 'Cron expressie',
+                type: 'text',
+                value: '0 8 * * *',
+                visibleIf: {frequency: 'advanced'}
+            }
+        ],
+        theme: {
+            background: '#E1F5FE',
+            text: '#0277BD'
+        }
     }
 }
