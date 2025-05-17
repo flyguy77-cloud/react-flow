@@ -1,9 +1,15 @@
 import type {Node, NodeProps} from '@xyflow/react';
 import type {ComponentType} from "react";
+import {nodeRegistry} from "../registry/NodeRegistry.ts";
 
-export type BaseNodeType = 'number' | 'text' | 'loadScript' | 'inlineScript' | 'start' | 'end' | 'and';
+type BaseNodeType = keyof typeof nodeRegistry;
 
-export type NodeFieldType = 'text' | 'number' | 'select' | 'textarea' | 'date';
+export type NodeFieldType =
+    | 'text'
+    | 'number'
+    | 'select'
+    | 'textarea'
+    | 'date';
 
 export interface NodeActions {
     [actionName: string]: () => void;

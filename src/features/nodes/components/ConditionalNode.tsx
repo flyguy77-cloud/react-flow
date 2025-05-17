@@ -56,10 +56,11 @@ const ConditionNode: React.FC<AppNodeProps> = ({id, data}) => {
                     variant="filled"
                 />
             </Stack>
-
-            {/* Handles */}
-            <Handle type="target" position={Position.Top} style={{top: -6}}/>
-
+            <Handle
+                type="target"
+                position={Position.Top}
+                style={{top: -6}}
+            />
             <Handle
                 type="source"
                 position={Position.Bottom}

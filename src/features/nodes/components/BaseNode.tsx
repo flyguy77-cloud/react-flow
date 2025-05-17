@@ -9,14 +9,14 @@ import {
     Stack,
     TextField,
     Tooltip,
-    Typography
+    Typography,
 } from '@mui/material';
-import {Handle, type NodeProps, Position, useReactFlow,} from '@xyflow/react';
+import {Handle, type NodeProps, Position, useReactFlow} from '@xyflow/react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RetryIcon from '@mui/icons-material/Replay';
 import React, {useState} from 'react';
-import type {AppNode, BaseNodeData} from '../types/BaseNodeTypes';
+import type {AppNode, BaseNodeData, NodeField} from '../types/BaseNodeTypes';
 import {DateTimePicker} from '@mui/x-date-pickers/DateTimePicker';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
@@ -29,10 +29,10 @@ export default function BaseNode({id, data}: NodeProps<AppNode>) {
     const [activeSelect, setActiveSelect] = useState<string | null>(null);
     const open = Boolean(anchorEl);
 
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
+    const {background, text} = data.theme || {};
+    const frequency = data.fields.find((f) => f.key === 'frequency')?.value;
 
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
 
     const handleDelete = () => {
@@ -41,8 +41,114 @@ export default function BaseNode({id, data}: NodeProps<AppNode>) {
         }
     };
 
-    const {background, text} = data.theme || {};
-    const frequency = data.fields.find((f) => f.key === 'frequency')?.value;
+    const updateField = (key: string, newValue: unknown) => {
+        setNodes((prev) =>
+            prev.map((node) => {
+                if (node.id !== id) return node;
+                const newFields = (node.data as BaseNodeData).fields.map((f) =>
+                    f.key === key ? {...f, value: newValue} : f
+                );
+                return {...node, data: {...node.data, fields: newFields}};
+            })
+        );
+    };
+
+    const renderLabel = (label: string) => (
+        <Typography
+            variant="body2"
+            fontWeight="medium"
+            sx={{mb: 0.5, ml: 0.5, textAlign: 'left', color: 'text.secondary'}}
+        >
+            {label}
+        </Typography>
+    );
+
+    const renderFieldByType = (field: NodeField) => {
+        // Conditional rendering via visibleIf
+        if (field.visibleIf) {
+            const showIf = field.visibleIf?.frequency;
+            const hideIf = field.visibleIf?.notFrequency;
+            if (showIf && frequency !== showIf) return null;
+            if (hideIf && frequency === hideIf) return null;
+        }
+
+        const isOpen = activeSelect === field.key;
+
+        switch (field.type) {
+            case 'datetime':
+                return (
+                    <Box key={field.key}>
+                        {renderLabel(field.label)}
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateTimePicker
+                                value={dayjs(field.value)}
+                                onChange={(val) => updateField(field.key, val?.toISOString())}
+                                slotProps={{
+                                    textField: {
+                                        size: 'small',
+                                        variant: 'filled',
+                                        fullWidth: true,
+                                    },
+                                }}
+                            />
+                        </LocalizationProvider>
+                    </Box>
+                );
+
+            case 'select':
+                return (
+                    <Box key={field.key}>
+                        {renderLabel(field.label)}
+                        <ListItemButton
+                            onClick={() => setActiveSelect(isOpen ? null : field.key)}
+                            sx={{
+                                px: 2,
+                                py: 1.25,
+                                backgroundColor: 'rgba(0,0,0,0.06)',
+                                border: '1px solid rgba(0,0,0,0.23)',
+                                borderRadius: 1,
+                                fontSize: '0.875rem',
+                                fontFamily: 'Roboto, sans-serif',
+                                '&:hover': {backgroundColor: 'rgba(0,0,0,0.08)'},
+                            }}
+                        >
+                            {field.value}
+                        </ListItemButton>
+                        {isOpen && (
+                            <List disablePadding sx={{border: '1px solid #ccc', borderRadius: 1, mt: 1}}>
+                                {field.options?.map((opt) => (
+                                    <ListItemButton
+                                        key={opt}
+                                        onClick={() => {
+                                            updateField(field.key, opt);
+                                            setActiveSelect(null);
+                                        }}
+                                    >
+                                        {opt}
+                                    </ListItemButton>
+                                ))}
+                            </List>
+                        )}
+                    </Box>
+                );
+
+            default:
+                return (
+                    <Box key={field.key}>
+                        {renderLabel(field.label)}
+                        <TextField
+                            value={field.value}
+                            size="small"
+                            variant="filled"
+                            fullWidth
+                            multiline={field.type === 'textarea'}
+                            type={field.type === 'number' ? 'number' : 'text'}
+                            onChange={(e) => updateField(field.key, e.target.value)}
+                        />
+                    </Box>
+                );
+        }
+    };
 
     return (
         <Box
@@ -102,132 +208,9 @@ export default function BaseNode({id, data}: NodeProps<AppNode>) {
             <Divider sx={{mb: 1}}/>
 
             <Stack spacing={1}>
-                {data.fields.map((field) => {
-                    const isOpen = activeSelect === field.key;
-
-                    // Conditional rendering based on visibleIf
-                    if (field.visibleIf) {
-                        const freq = frequency;
-                        if (field.visibleIf.frequency) {
-                            const expected = field.visibleIf.frequency;
-                            const matches = Array.isArray(expected) ? expected.includes(freq) : freq === expected;
-                            if (!matches) return null;
-                        }
-                        if (field.visibleIf.notFrequency) {
-                            const excluded = field.visibleIf.notFrequency;
-                            const blocked = Array.isArray(excluded) ? excluded.includes(freq) : freq === excluded;
-                            if (blocked) return null;
-                        }
-                    }
-
-                    const handleChange = (
-                        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | { value: unknown }>
-                    ) => {
-                        const newValue = e.target.value;
-                        setNodes((prev) =>
-                            prev.map((node) => {
-                                if (node.id !== id) return node;
-                                const newFields = (node.data as BaseNodeData).fields.map((f) =>
-                                    f.key === field.key ? {...f, value: newValue} : f
-                                );
-                                return {...node, data: {...node.data, fields: newFields}};
-                            })
-                        );
-                    };
-
-                    const renderLabel = (
-                        <Typography variant="body2" fontWeight="medium"
-                                    sx={{mb: 0.5, ml: 0.5, textAlign: 'left', color: 'text.secondary'}}>
-                            {field.label}
-                        </Typography>
-                    );
-
-                    if (field.type === 'datetime') {
-                        return (
-                            <Box key={field.key}>
-                                {renderLabel}
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DateTimePicker
-                                        value={dayjs(field.value)}
-                                        onChange={(newValue) => {
-                                            const newIso = newValue?.toISOString();
-                                            setNodes((prev) =>
-                                                prev.map((node) => {
-                                                    if (node.id !== id) return node;
-                                                    const newFields = (node.data as BaseNodeData).fields.map((f) =>
-                                                        f.key === field.key ? {...f, value: newIso} : f
-                                                    );
-                                                    return {...node, data: {...node.data, fields: newFields}};
-                                                })
-                                            );
-                                        }}
-                                        slotProps={{
-                                            textField: {
-                                                size: 'small',
-                                                variant: 'filled',
-                                                fullWidth: true
-                                            }
-                                        }}
-                                    />
-                                </LocalizationProvider>
-                            </Box>
-                        );
-                    }
-
-                    if (field.type === 'select') {
-                        return (
-                            <Box key={field.key}>
-                                {renderLabel}
-                                <ListItemButton
-                                    onClick={() => setActiveSelect(isOpen ? null : field.key)}
-                                    sx={{
-                                        px: 2,
-                                        py: 1.25,
-                                        backgroundColor: 'rgba(0,0,0,0.06)',
-                                        border: '1px solid rgba(0,0,0,0.23)',
-                                        borderRadius: 1,
-                                        fontSize: '0.875rem',
-                                        fontFamily: 'Roboto, sans-serif',
-                                        '&:hover': {backgroundColor: 'rgba(0,0,0,0.08)'}
-                                    }}
-                                >
-                                    {field.value}
-                                </ListItemButton>
-                                {isOpen && (
-                                    <List disablePadding sx={{border: '1px solid #ccc', borderRadius: 1, mt: 1}}>
-                                        {field.options?.map((opt) => (
-                                            <ListItemButton
-                                                key={opt}
-                                                onClick={() => {
-                                                    handleChange({target: {value: opt}} as any);
-                                                    setActiveSelect(null);
-                                                }}
-                                            >
-                                                {opt}
-                                            </ListItemButton>
-                                        ))}
-                                    </List>
-                                )}
-                            </Box>
-                        );
-                    }
-
-                    return (
-                        <Box key={field.key}>
-                            {renderLabel}
-                            <TextField
-                                value={field.value}
-                                size="small"
-                                variant="filled"
-                                fullWidth
-                                multiline={field.type === 'textarea'}
-                                type={field.type === 'number' ? 'number' : 'text'}
-                                onChange={handleChange}
-                            />
-                        </Box>
-                    );
-                })}
+                {data.fields.map(renderFieldByType)}
             </Stack>
+
             <Handle type="target" position={Position.Left} style={{top: '50%'}}/>
             <Handle type="source" position={Position.Right} style={{top: '50%'}}/>
         </Box>

@@ -14,6 +14,54 @@ import FunctionIcon from "../../../shared/icons/FunctionIcon.tsx";
 
 export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
     // Omit => Use all fields from BaseNodeData, except field actions. So not every type has to have an actions field”
+    //
+    // Trigger Nodes
+    start: {
+        nodeType: 'start',
+        title: 'Start',
+        icon: PlayArrowIcon,
+        fields: [],
+        theme: {
+            background: '#E8F5E9',
+            text: '#1B5E20'
+        },
+    },
+    schedule: {
+        nodeType: 'schedule',
+        title: 'Schedule',
+        label: 'Schedule',
+        icon: ScheduleIcon,
+        category: 'Triggers',
+        fields: [
+            {
+                key: 'frequency',
+                label: 'Frequentie',
+                type: 'select',
+                value: 'daily',
+                options: ['once', 'daily', 'weekly', 'monthly', 'advanced']
+            },
+            {
+                key: 'datetime',
+                label: 'Startmoment',
+                type: 'datetime',
+                value: '2025-05-17T08:00',
+                visibleIf: {notFrequency: 'advanced'}
+            },
+            {
+                key: 'cron',
+                label: 'Cron expressie',
+                type: 'text',
+                value: '0 8 * * *',
+                visibleIf: {frequency: 'advanced'}
+            }
+        ],
+        theme: {
+            background: '#E1F5FE',
+            text: '#0277BD'
+        }
+    },
+
+    // Task Nodes
     loadScript: {
         nodeType: 'loadScript',
         title: 'Load Script',
@@ -72,9 +120,27 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
             text: '#6A1B9A'
         },
     },
+    inlineScript: {
+        nodeType: 'inlineScript',
+        title: 'Inline Script',
+        status: 'running',
+        icon: FunctionIcon,
+        fields: [
+            {
+                key: 'code',
+                label: 'Script',
+                type: 'textarea',
+                value: '# write your script here'
+            }
+        ],
+        theme: {
+            background: '#FBE9E7',
+            text: '#4E342E'
+        },
+    },
     genereer: {
         nodeType: 'genereer',
-        title: 'Genereer',
+        title: 'Genereer rapport',
         icon: DescriptionIcon,
         fields: [
             {
@@ -90,25 +156,6 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
             text: '#E65100',
         },
     },
-    inlineScript: {
-        nodeType: 'inlineScript',
-        title: 'Inline Script',
-        status: 'running',  // status handling
-        icon: FunctionIcon,
-        fields: [
-            {
-                key: 'code',
-                label: 'Script',
-                type: 'textarea',
-                value: '# write your script here'
-            }
-        ],
-        theme: {
-            background: '#FBE9E7',
-            text: '#4E342E'
-        },
-    },
-
     save: {
         nodeType: 'save',
         title: 'Save Report',
@@ -144,26 +191,7 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         }
     },
 
-    start: {
-        nodeType: 'start',
-        title: 'Start',
-        icon: PlayArrowIcon,
-        fields: [],
-        theme: {
-            background: '#E8F5E9',
-            text: '#1B5E20'
-        }, // groen
-    },
-    stop: {
-        nodeType: 'stop',
-        title: 'End',
-        icon: StopIcon,
-        fields: [],
-        theme: {
-            background: '#FFEBEE',
-            text: '#B71C1C'
-        }, // rood
-    },
+    // Logical Nodes
     conditionNode: {
         nodeType: 'conditionNode',
         title: 'IF/ELSE',
@@ -187,7 +215,7 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         nodeType: 'orJoin',
         title: 'OR',
         icon: DoneIcon,
-        fields: [], // Geen config nodig, het is puur logica
+        fields: [],
         theme: {
             background: '#E3F2FD', text: '#1565C0'
         }
@@ -202,38 +230,21 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         },
         status: 'waiting' // dynamisch bijwerken
     },
-    schedule: {
-        nodeType: 'schedule',
-        title: 'Schedule',
-        label: 'Schedule',
-        icon: ScheduleIcon,
-        category: 'Triggers',
-        fields: [
-            {
-                key: 'frequency',
-                label: 'Frequentie',
-                type: 'select',
-                value: 'daily',
-                options: ['once', 'daily', 'weekly', 'monthly', 'advanced']
-            },
-            {
-                key: 'datetime',
-                label: 'Startmoment',
-                type: 'datetime',
-                value: '2025-05-17T08:00',
-                visibleIf: {notFrequency: 'advanced'}
-            },
-            {
-                key: 'cron',
-                label: 'Cron expressie',
-                type: 'text',
-                value: '0 8 * * *',
-                visibleIf: {frequency: 'advanced'}
-            }
-        ],
+
+    // End Nodes
+    stop: {
+        nodeType: 'stop',
+        title: 'End',
+        icon: StopIcon,
+        fields: [],
         theme: {
-            background: '#E1F5FE',
-            text: '#0277BD'
-        }
-    }
+            background: '#FFEBEE',
+            text: '#B71C1C'
+        },
+    },
 }
+
+export const nodeRegistryArray = Object.entries(nodeRegistry).map(([type, config]) => ({
+    type,
+    label: String(config.label ?? config.title ?? type)
+}));
