@@ -2,15 +2,7 @@ import React from 'react';
 import {useDnD} from '../context/DragDropContext.tsx';
 import {Divider, List, ListItem, Paper, Typography} from '@mui/material';
 import {nodeCategories} from "../../../shared/config/NodeCategories.ts";
-
-const nodeTypes = [
-    {type: 'start', label: 'Start'},
-    {type: 'stop', label: 'Stop'},
-    {type: 'loadScript', label: 'Load Script'},
-    {type: 'inlineScript', label: 'Inline Script'},
-    {type: 'runScript', label: 'Run Script'},
-    {type: 'genereer', label: 'Genereer'}
-];
+import {nodeRegistryArray} from "../../nodes/registry/NodeRegistry.ts";
 
 const DragDropSidebar: React.FC = () => {
     const [, setType] = useDnD();
@@ -29,7 +21,7 @@ const DragDropSidebar: React.FC = () => {
                         {category.label}
                     </Typography>
                     <List disablePadding>
-                        {nodeTypes.map((node) => (
+                        {nodeRegistryArray.map((node) => (
                             <ListItem
                                 key={node.type + node.label}
                                 draggable
@@ -45,7 +37,9 @@ const DragDropSidebar: React.FC = () => {
                                     }
                                 }}
                             >
-                                {node.label}
+                                <Typography variant="body2">
+                                    {node.label ?? 'Geen label'}
+                                </Typography>
                             </ListItem>
                         ))}
                     </List>
