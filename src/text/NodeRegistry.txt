@@ -92,6 +92,13 @@ export const nodeRegistry: Record<string, Omit<BaseNodeData, 'actions'>> = {
         status: "failed",
         fields: [
             {
+                key: 'team',
+                label: 'Team Naam',
+                type: 'select',
+                value: 'HighFive',
+                options: ['Highfive', 'HighSix']
+            },
+            {
                 key: 'onderzoekId',
                 label: 'Onderzoek ID',
                 type: 'text',
