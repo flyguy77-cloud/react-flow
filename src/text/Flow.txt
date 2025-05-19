@@ -1,10 +1,13 @@
 import React, {useCallback, useRef} from 'react';
 import {
     addEdge,
+    applyEdgeChanges,
+    applyNodeChanges,
+    Background,
+    BackgroundVariant,
     Controls,
     Edge,
     Node,
-    NodeTypes,
     OnConnect,
     ReactFlow,
     useEdgesState,
@@ -15,25 +18,13 @@ import {
 import '@xyflow/react/dist/base.css';
 import {Box, Paper} from '@mui/material';
 
-import BaseNode from '../../nodes/components/BaseNode.tsx';
+import {nodeTypes} from '../../../shared/types/nodeTypes.ts'
 import {useDnD} from '../../sidebar/context/DragDropContext.tsx';
 import DragDropSidebar from '../../sidebar/components/DragDropSidebar.tsx';
 import type {BaseNodeData} from '../../nodes/types/BaseNodeTypes.ts';
 import CustomEdge from './CustomEdge.tsx';
 import {createNodeFromType} from "../../nodes/factory/createNodeFromType.ts";
 import {nodeRegistry} from "../../nodes/registry/NodeRegistry.ts";
-import StartNode from "../../nodes/components/StartNode.tsx";
-import EndNode from "../../nodes/components/StopNode.tsx";
-
-const nodeTypes: NodeTypes = {
-    baseNode: BaseNode,
-    start: StartNode,
-    stop: EndNode,
-    loadScript: BaseNode,
-    runScript: BaseNode,
-    inlineScript: BaseNode,
-    genereer: BaseNode
-};
 
 const edgeTypes = {
     custom: CustomEdge
@@ -68,15 +59,51 @@ const defaultEdgeOptions = {
 
 const Flow = () => {
     const reactFlowWrapper = useRef(null);
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [nodes, setNodes] = useNodesState(initialNodes);
+    const [edges, setEdges] = useEdgesState(initialEdges);
     const {screenToFlowPosition} = useReactFlow();
     const [type] = useDnD();
 
     const onConnect: OnConnect = useCallback(
-        (params) => setEdges((els) => addEdge(params, els)),
-        []
+        (params) => {
+            const updatedEdges = addEdge(params, edges);
+            setEdges(updatedEdges);
+            updateStartNodeStatus(nodes, updatedEdges); // <== add this to trigger a change on the canvas
+        },
+        [edges, nodes]
     );
+
+    const updateStartNodeStatus = (nodes: Node<BaseNodeData>[], edges: Edge[]) => {
+        const updatedNodes = nodes.map((node) => {
+            if (node.type !== 'start') return node;
+
+            const isConnected = edges.some((edge) => {
+                return edge.source === node.id && nodes.find(n => n.id === edge.target && n.type === 'stop');
+            });
+
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    isConnectedToEnd: isConnected,
+                }
+            };
+        });
+
+        setNodes(updatedNodes);
+    };
+
+    const handleEdgesChange = useCallback((changes: any) => {
+        const nextEdges = applyEdgeChanges(changes, edges);
+        setEdges(nextEdges);
+        updateStartNodeStatus(nodes, nextEdges);
+    }, [edges, nodes]);
+
+    const handleNodesChange = useCallback((changes: any) => {
+        const nextNodes = applyNodeChanges(changes, nodes);
+        setNodes(nextNodes);
+        updateStartNodeStatus(nextNodes, edges); // gebruik up-to-date nodes
+    }, [nodes, edges]);
 
     const onDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
@@ -100,15 +127,15 @@ const Flow = () => {
     }, []);
 
     return (
-        <Box sx={{height: '75vh', width: '100%', position: 'relative'}} ref={reactFlowWrapper}>
+        <Box sx={{height: '90vh', width: '140vh', position: 'relative'}} ref={reactFlowWrapper}>
             <Paper elevation={1} sx={{height: '100%'}}>
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
+                    onNodesChange={handleNodesChange}
+                    onEdgesChange={handleEdgesChange}
                     onConnect={onConnect}
-                    fitView={false} // turn off zoom in after dropping first node
+                    fitView={false}
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}
                     defaultEdgeOptions={defaultEdgeOptions}
@@ -116,6 +143,7 @@ const Flow = () => {
                     onDragOver={onDragOver}
                     style={{backgroundColor: '#fff'}}
                 >
+                    <Background variant={BackgroundVariant.Dots} size={1} gap={10}/>
                     <Controls showInteractive={false}/>
                     <svg>
                         <defs>
